@@ -5,22 +5,6 @@ import { BookingService } from "./bookingService.js";
 import { healthRoutes } from "./health.js";
 import { bookingsRoutes } from "./bookings.js";
 
-const errorResponseSchema = {
-  type: "object",
-  properties: {
-    error: {
-      type: "object",
-      properties: {
-        code: { type: "string" },
-        message: { type: "string" },
-        details: {}
-      },
-      required: ["code", "message"]
-    }
-  },
-  required: ["error"]
-} as const;
-
 export function buildApp() {
   const app = Fastify({ logger: true });
 
@@ -37,26 +21,27 @@ export function buildApp() {
       return;
     }
 
-    // Fastify validation errors
-    if (err?.validation) {
+    // Fastify validation errors (shape differs from AppError)
+    const anyErr = err as any;
+    if (anyErr?.validation) {
       reply.status(400).send({
         error: {
           code: "REQUEST_VALIDATION_ERROR",
           message: err.message ?? "Request validation failed",
           details: {
-            validation: err.validation,
-            validationContext: err.validationContext ?? null
+            validation: anyErr.validation,
+            validationContext: anyErr.validationContext ?? null
           }
         }
       });
       return;
     }
 
-
     reply.status(500).send({
       error: {
         code: "INTERNAL_SERVER_ERROR",
-        message: "Unexpected error"
+        message: "Unexpected error",
+        details: null
       }
     });
   });
