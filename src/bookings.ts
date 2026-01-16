@@ -9,13 +9,29 @@ export function bookingsRoutes(service: BookingService): FastifyPluginAsync {
           type: "object",
           required: ["roomId"],
           properties: { roomId: { type: "string", minLength: 1 } }
+        },
+        response: {
+          200: {
+            type: "array",
+            items: {
+              type: "object",
+              required: ["id", "roomId", "start", "end", "createdAt"],
+              properties: {
+                id: { type: "string" },
+                roomId: { type: "string" },
+                start: { type: "string", format: "date-time" },
+                end: { type: "string", format: "date-time" },
+                createdAt: { type: "string", format: "date-time" }
+              }
+            }
+          }
         }
       }
     }, async (req) => {
       const { roomId } = req.params as { roomId: string };
-      const bookings = await service.list(roomId);
-      return { roomId, bookings };
+      return service.list(roomId);
     });
+
 
     app.post("/rooms/:roomId/bookings", {
       schema: {
