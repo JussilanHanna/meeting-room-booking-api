@@ -2,6 +2,17 @@ import { describe, it, expect } from "vitest";
 import { InMemoryBookingRepository } from "../src/bookingRepository.js";
 import { BookingService } from "../src/bookingService.js";
 
+async function expectRejectCode(
+  promise: Promise<unknown>,
+  code: string,
+  statusCode: number
+) {
+  await expect(promise).rejects.toMatchObject({
+    code,
+    statusCode
+  });
+}
+
 function futureIso(minutesFromNow: number) {
   return new Date(Date.now() + minutesFromNow * 60_000).toISOString();
 }
@@ -19,7 +30,11 @@ describe("BookingService", () => {
     const repo = new InMemoryBookingRepository();
     const service = new BookingService(repo);
 
-    await expect(service.create("A", futureIso(10), futureIso(10))).rejects.toBeTruthy();
+  await expectRejectCode(
+      service.create("A", futureIso(10), futureIso(10)),
+      "VALIDATION_ERROR",
+      400
+    );
   });
 
   it("rejects bookings in the past", async () => {
@@ -29,7 +44,11 @@ describe("BookingService", () => {
     const past = new Date(Date.now() - 60_000).toISOString();
     const future = futureIso(10);
 
-    await expect(service.create("A", past, future)).rejects.toBeTruthy();
+   await expectRejectCode(
+      service.create("A", past, future),
+      "VALIDATION_ERROR",
+      400
+    );
   });
 
   it("rejects overlapping bookings", async () => {
@@ -37,7 +56,11 @@ describe("BookingService", () => {
     const service = new BookingService(repo);
 
     await service.create("A", futureIso(10), futureIso(70));
-    await expect(service.create("A", futureIso(20), futureIso(40))).rejects.toBeTruthy();
+    await expectRejectCode(
+      service.create("A", futureIso(20), futureIso(40)),
+      "CONFLICT",
+      409
+    );
   });
 
   it("allows back-to-back bookings", async () => {
