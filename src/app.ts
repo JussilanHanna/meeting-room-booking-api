@@ -5,6 +5,22 @@ import { BookingService } from "./bookingService.js";
 import { healthRoutes } from "./health.js";
 import { bookingsRoutes } from "./bookings.js";
 
+const errorResponseSchema = {
+  type: "object",
+  properties: {
+    error: {
+      type: "object",
+      properties: {
+        code: { type: "string" },
+        message: { type: "string" },
+        details: {}
+      },
+      required: ["code", "message"]
+    }
+  },
+  required: ["error"]
+} as const;
+
 export function buildApp() {
   const app = Fastify({ logger: true });
 
@@ -22,17 +38,20 @@ export function buildApp() {
     }
 
     // Fastify validation errors
-    // @ts-expect-error fastify error typing varies
     if (err?.validation) {
       reply.status(400).send({
         error: {
           code: "REQUEST_VALIDATION_ERROR",
-          message: "Request validation failed",
-          details: err.validation
+          message: err.message ?? "Request validation failed",
+          details: {
+            validation: err.validation,
+            validationContext: err.validationContext ?? null
+          }
         }
       });
       return;
     }
+
 
     reply.status(500).send({
       error: {

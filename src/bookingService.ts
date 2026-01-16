@@ -2,17 +2,7 @@ import { randomUUID } from "crypto";
 import { Booking } from "./types.js";
 import { BookingRepository } from "./bookingRepository.js";
 import { ConflictError, NotFoundError, ValidationError } from "./errors.js";
-
-function parseISOToMs(iso: string): number {
-  const ms = Date.parse(iso);
-  if (Number.isNaN(ms)) throw new ValidationError("Invalid ISO datetime format", { value: iso });
-  return ms;
-}
-
-function overlaps(aStart: number, aEnd: number, bStart: number, bEnd: number): boolean {
-  // [start, end) half-open to allow back-to-back bookings
-  return aStart < bEnd && bStart < aEnd;
-}
+import { isOverlap, parseISOToMs } from "./date.js";
 
 export class BookingService {
   constructor(private repo: BookingRepository) {}
@@ -38,7 +28,7 @@ export class BookingService {
     for (const b of existing) {
       const bStart = parseISOToMs(b.start);
       const bEnd = parseISOToMs(b.end);
-      if (overlaps(startMs, endMs, bStart, bEnd)) {
+      if (isOverlap(startMs, endMs, bStart, bEnd)) {
         throw new ConflictError("Booking overlaps with an existing booking", { conflictingBookingId: b.id });
       }
     }
