@@ -28,8 +28,8 @@ export function bookingsRoutes(service: BookingService): FastifyPluginAsync {
           type: "object",
           required: ["start", "end"],
           properties: {
-            start: { type: "string" },
-            end: { type: "string" }
+            start: { type: "string", format: "date-time" },
+            end: { type: "string", format: "date-time" }
           }
         }
       }
