@@ -1,0 +1,1 @@
+Tekoälyn tuottama ratkaisu oletti valmiin Node.js-ympäristön. Käytännössä Windows-ympäristössä PATH ei ollut oikein konfiguroitu, mikä vaati manuaalisen korjauksen.
