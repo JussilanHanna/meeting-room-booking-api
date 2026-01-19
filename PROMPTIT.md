@@ -1,6 +1,10 @@
 # PROMPTIT.md
 
-## Prompt #1 – Perustoteutus (Fastify + TS)
+Tämä tiedosto kuvaa, miten tekoälyä hyödynnettiin toteutuksen eri vaiheissa sekä miten ratkaisu kehittyi iteratiivisesti promptien avulla.
+
+---
+
+## Prompt #1 – Perustoteutus (Fastify + TypeScript)
 
 ### PROMPT
 Toteuta tuotantohenkinen kokoushuoneiden varaus-API Node.js + TypeScript + Fastify -stackilla. Käytä in-memory tallennusta. Tarvittavat endpointit:
@@ -30,11 +34,11 @@ Palauta:
 - ohjeet käynnistykseen
 
 ### AI RESPONSE (tiivistelmä)
-AI tuotti Fastify + TypeScript -projektin, jossa on:
-- In-memory repository varauksille
-- BookingService, jossa on liiketoimintasäännöt (overlap, menneisyys, start<end)
-- Reitit: GET/POST/DELETE /rooms/:roomId/bookings sekä GET /health
-- Yhtenäinen virhemuoto AppErrorin kautta
+AI loi lähtötason Fastify + TypeScript -projektin, jossa oli:
+- in-memory repository varauksille
+- BookingService liiketoimintasäännöille (päällekkäisyys, menneisyys, start < end)
+- reitit GET/POST/DELETE /rooms/:roomId/bookings sekä GET /health
+- yhtenäinen virhemuoto AppErrorin kautta
 - Vitest-unit-testit palvelulogiiikalle
 - README käynnistykseen ja curl-esimerkkeihin
 
@@ -54,6 +58,7 @@ Tuotettu tiedostopuu:
   - test/
     - bookingService.test.ts
 
+---
 
 ## Prompt #2 – Validoinnin parantaminen
 
@@ -61,8 +66,9 @@ Tuotettu tiedostopuu:
 Lisää POST /rooms/:roomId/bookings -reitille JSON scheman validointi siten, että start ja end vaativat ISO 8601 date-time -muodon (format: "date-time"). Varmista, että virhe palautuu yhtenäisessä error-muodossa.
 
 ### AI RESPONSE (tiivistelmä)
-AI ehdotti lisäämään start/end -kenttiin `format: "date-time"` route-schemoihin.
+AI tuotti ehdotuksen lisätä start- ja end-kenttiin `format: "date-time"` route-schemoihin.
 
+---
 
 ## Prompt #3 – Testien täsmennys
 
@@ -70,8 +76,9 @@ AI ehdotti lisäämään start/end -kenttiin `format: "date-time"` route-schemoi
 Refaktoroi unit-testit niin, että ne eivät käytä `rejects.toBeTruthy()`, vaan tarkistavat virheiden `code` ja `statusCode`. Tee tarvittaessa apufunktio testitiedostoon toiston vähentämiseksi.
 
 ### AI RESPONSE (tiivistelmä)
-AI ehdotti tarkentamaan testejä `toMatchObject({ code, statusCode })` -odotuksilla ja lisäämään helper-funktion `expectRejectCode(...)`.
+AI tuotti ehdotuksen tarkentaa testejä `toMatchObject({ code, statusCode })` -odotuksilla ja lisätä helper-funktion `expectRejectCode(...)`.
 
+---
 
 ## Prompt #4 – Virhevastaukset yhdenmukaisiksi
 
@@ -79,8 +86,9 @@ AI ehdotti tarkentamaan testejä `toMatchObject({ code, statusCode })` -odotuksi
 Yhdenmukaista Fastifyn validation error -vastaukset samaan muotoon kuin AppError (error: { code, message, details }). Poista tarpeettomat @ts-expect-error -direktiivit ja käsittele Fastifyn error-objektin kentät turvallisesti.
 
 ### AI RESPONSE (tiivistelmä)
-AI ehdotti käyttämään type castia `(err as any)` validation-kenttien lukemiseen ja lisäämään 500-virheeseen myös `details: null`.
+AI tuotti ehdotuksen käyttää type castia `(err as any)` validation-kenttien lukemiseen sekä lisätä 500-virheeseen `details: null`.
 
+---
 
 ## Prompt #5 – API:n vastemuodon muutos
 
@@ -88,4 +96,4 @@ AI ehdotti käyttämään type castia `(err as any)` validation-kenttien lukemis
 Muuta GET /rooms/:roomId/bookings palauttamaan suoraan taulukko (Booking[]) wrapper-objektin sijaan ja lisää response-schema (200) listaukselle.
 
 ### AI RESPONSE (tiivistelmä)
-AI ehdotti palauttamaan `return service.list(roomId);` ja määrittelemään response-schema items-kenttineen.
+AI tuotti ehdotuksen palauttaa `return service.list(roomId);` ja määritellä response-schema items-kenttineen.
